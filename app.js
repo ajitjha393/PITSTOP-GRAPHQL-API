@@ -8,7 +8,7 @@ const multer = require('multer')
 
 const app = express()
 
-const graphqlHttp = require('express-graphql')
+const { graphqlHTTP } = require('express-graphql')
 
 const graphqlSchema = require('./graphql/schema')
 
@@ -58,7 +58,7 @@ app.use((req, res, next) => {
 
 app.use(
 	'/graphql',
-	graphqlHttp({
+	graphqlHTTP({
 		schema: graphqlSchema,
 		rootValue: graphqlResolvers,
 	})
@@ -84,5 +84,7 @@ mongoose
 	.connect(credentials)
 	.then((_) => {
 		app.listen(8080)
+		console.clear()
+		console.log('Connected')
 	})
 	.catch((err) => console.log(err))
