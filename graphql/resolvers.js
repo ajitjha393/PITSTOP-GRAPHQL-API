@@ -21,7 +21,10 @@ module.exports = {
 		}
 
 		if (errors.length > 0) {
-			throw new Error('Invalid input Data')
+			const err = new Error('Invalid input Data')
+			err.statusCode = 422
+			err.data = errors
+			throw err
 		}
 
 		const existingUser = await User.findOne({ email: email })
