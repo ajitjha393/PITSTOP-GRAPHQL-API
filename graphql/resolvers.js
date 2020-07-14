@@ -1,6 +1,8 @@
 const User = require('../models/user')
 const { hash } = require('bcryptjs')
-const validator = require('validator')
+
+// const validator = require('validator')
+const { default: validator } = require('validator')
 
 module.exports = {
 	createUser: async ({ userInput }, req) => {
