@@ -1,6 +1,7 @@
 const User = require('../models/user')
 const { hash } = require('bcryptjs')
-
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 // const validator = require('validator')
 const { default: validator } = require('validator')
 
@@ -46,6 +47,37 @@ module.exports = {
 		return {
 			...storedUser._doc,
 			_id: storedUser._id.toString(),
+		}
+	},
+
+	login: async ({ email, password }, req) => {
+		const user = await User.findOne({ email })
+		if (!user) {
+			const err = new Error('No User Found!')
+			err.statusCode = 401 // Not Authenticated
+			throw err
+		}
+
+		if (!(await bcrypt.compare(password, user.password))) {
+			const err = new Error('Password is incorrect!')
+			err.statusCode = 401
+			throw err
+		}
+
+		const token = jwt.sign(
+			{
+				email: user.email,
+				userId: user._id.toString(),
+			},
+			'pitstopSecretKey',
+			{
+				expiresIn: '1h',
+			}
+		)
+
+		return {
+			token: token,
+			userId: user._id.toString(),
 		}
 	},
 }
