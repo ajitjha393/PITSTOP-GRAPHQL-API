@@ -33,11 +33,11 @@ module.exports = buildSchema(`
 
 	type loginData {
 		token: String!
-		userId:  String!
+		userId: String!
 	}
 
 	type RootQuery {
-		login(): loginData!
+		login(email: String , password: String): loginData!
 	}
 
 	type RootMutation {
