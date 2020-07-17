@@ -1,4 +1,5 @@
 const User = require('../models/user')
+const Post = require('../models/post')
 const { hash } = require('bcryptjs')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
@@ -78,6 +79,45 @@ module.exports = {
 		return {
 			token: token,
 			userId: user._id.toString(),
+		}
+	},
+
+	createPost: async ({ postInput }, req) => {
+		const { title, content, imageUrl } = postInput
+		const errors = []
+		if (!validator.isLength(title, { min: 5 })) {
+			errors.push({
+				message: 'Title Length too short!',
+			})
+		}
+
+		if (!validator.isLength(content, { min: 5 })) {
+			errors.push({
+				message: 'Content Length too short!',
+			})
+		}
+		if (errors.length > 0) {
+			const err = new Error('Invalid input Data')
+			err.statusCode = 422
+			err.data = errors
+			throw err
+		}
+
+		// Will retrieve user and add that detail in posts
+
+		const post = new Post({
+			title,
+			content,
+			imageUrl,
+		})
+
+		const createdPost = await post.save()
+
+		return {
+			...createdPost._doc,
+			_id: createdPost._id.toString(),
+			createdAt: createdPost.createdAt.toISOString(),
+			updatedAt: createdPost.updatedAt.toISOString(),
 		}
 	},
 }
