@@ -83,6 +83,20 @@ module.exports = {
 	},
 
 	createPost: async ({ postInput }, req) => {
+		if (!req.isAuth) {
+			const err = new Error('User not Authenticated!')
+			err.statusCode = 401
+			throw err
+		}
+
+		const user = await User.findOne(req.userId)
+
+		if (!user) {
+			const err = new Error('Invalid User!')
+			err.statusCode = 401
+			throw err
+		}
+
 		const { title, content, imageUrl } = postInput
 		const errors = []
 		if (!validator.isLength(title, { min: 5 })) {
@@ -109,9 +123,12 @@ module.exports = {
 			title,
 			content,
 			imageUrl,
+			creator: user,
 		})
 
 		const createdPost = await post.save()
+		user.posts.push(createdPost)
+		await user.save()
 
 		return {
 			...createdPost._doc,
