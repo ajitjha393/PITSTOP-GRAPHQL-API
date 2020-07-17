@@ -89,7 +89,7 @@ module.exports = {
 			throw err
 		}
 
-		const user = await User.findOne(req.userId)
+		const user = await User.findById(req.userId)
 
 		if (!user) {
 			const err = new Error('Invalid User!')
