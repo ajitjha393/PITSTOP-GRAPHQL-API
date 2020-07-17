@@ -5,6 +5,7 @@ module.exports = (req, res, next) => {
 	const authHeader = req.get('Authorization')
 	if (!authHeader) {
 		req.isAuth = false
+		console.log('header')
 		return next()
 	}
 
@@ -16,11 +17,13 @@ module.exports = (req, res, next) => {
 		decodedToken = jwt.verify(token, 'pitstopSecretKey')
 	} catch (err) {
 		req.isAuth = false
+		console.log('try catch')
 		return next()
 	}
 
 	if (!decodedToken) {
 		req.isAuth = false
+		console.log('token')
 		return next()
 	}
 
