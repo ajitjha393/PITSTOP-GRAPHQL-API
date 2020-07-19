@@ -138,15 +138,23 @@ module.exports = {
 		}
 	},
 
-	posts: async (args, req) => {
+	posts: async ({ page }, req) => {
 		if (!req.isAuth) {
 			const err = new Error('User not Authenticated!')
 			err.statusCode = 401
 			throw err
 		}
 
+		if (!page) {
+			page = 1
+		}
+
+		const postsPerPage = 2
+
 		const totalPosts = await Post.find().countDocuments()
 		const posts = await Post.find()
+			.skip((page - 1) * postsPerPage)
+			.limit(postsPerPage)
 			.populate('creator')
 			.sort({ createdAt: -1 })
 
