@@ -282,4 +282,24 @@ module.exports = {
 
 		return true
 	},
+
+	user: async (args, req) => {
+		if (!req.isAuth) {
+			const err = new Error('User not Authenticated!')
+			err.statusCode = 404
+			throw err
+		}
+
+		const user = await User.findById(req.userId)
+		if (!user) {
+			const err = new Error('User not Found!')
+			err.statusCode = 404
+			throw err
+		}
+
+		return {
+			...user._doc,
+			_id: user._id.toString(),
+		}
+	},
 }
