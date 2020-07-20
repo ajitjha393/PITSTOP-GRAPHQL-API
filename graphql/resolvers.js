@@ -302,4 +302,28 @@ module.exports = {
 			_id: user._id.toString(),
 		}
 	},
+
+	updateStatus: async ({ status }, req) => {
+		if (!req.isAuth) {
+			const err = new Error('User not Authenticated!')
+			err.statusCode = 404
+			throw err
+		}
+
+		const user = await User.findById(req.userId)
+		if (!user) {
+			const err = new Error('User not Found!')
+			err.statusCode = 404
+			throw err
+		}
+
+		user.status = status
+		const updatedUser = await user.save()
+
+		console.log(user.status)
+		return {
+			...updatedUser._doc,
+			_id: updatedUser._id.toString(),
+		}
+	},
 }
