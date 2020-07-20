@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const { credentials } = require('./utils/credentials')
 const path = require('path')
+const fs = require('fs')
 const multer = require('multer')
 
 const app = express()
@@ -64,6 +65,26 @@ app.use((req, res, next) => {
 
 app.use(auth)
 
+app.put('/add-image', (req, res, next) => {
+	// If no file is selected
+	if (!req.file) {
+		return res.status(200).json({
+			message: 'No image File provided!',
+		})
+	}
+
+	if (req.body.oldPath) {
+		// This means new image while editing
+		clearImage(req.body.oldPath)
+	}
+
+	// And now return the new File path back
+	return res.status(201).json({
+		message: 'File path Stored!',
+		imageUrlPath: req.file.path,
+	})
+})
+
 app.use(
 	'/graphql',
 	graphqlHTTP({
@@ -111,3 +132,8 @@ mongoose
 		console.log('Connected')
 	})
 	.catch((err) => console.log(err))
+
+const clearImage = (filepath) => {
+	filepath = path.join(__dirname, '..', filepath)
+	fs.unlink(filepath, (err) => console.log(err))
+}
