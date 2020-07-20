@@ -187,7 +187,65 @@ module.exports = {
 			...post._doc,
 			_id: post._id.toString(),
 			createdAt: post.createdAt.toISOString(),
-			updatedAt: post.updatedAt.toISOString()
+			updatedAt: post.updatedAt.toISOString(),
+		}
+	},
+
+	updatePost: async ({ id, postInput }, req) => {
+		if (!req.isAuth) {
+			const err = new Error('User not Authenticated!')
+			err.statusCode = 404
+			throw err
+		}
+
+		const post = await Post.findById(id).populate('creator')
+		if (!post) {
+			const err = new Error('No Post Found!')
+			err.statusCode = 404
+			throw err
+		}
+
+		if (post.creator._id.toString() !== req.userId) {
+			const err = new Error('Not Authorized!')
+			err.statusCode = 403
+			throw err
+		}
+
+		const { title, content, imageUrl } = postInput
+		const errors = []
+		if (!validator.isLength(title, { min: 5 })) {
+			errors.push({
+				message: 'Title Length too short!',
+			})
+		}
+
+		if (!validator.isLength(content, { min: 5 })) {
+			errors.push({
+				message: 'Content Length too short!',
+			})
+		}
+		if (errors.length > 0) {
+			const err = new Error('Invalid input Data')
+			err.statusCode = 422
+			err.data = errors
+			throw err
+		}
+
+		post.title = title
+		post.content = content
+
+		// If new image is provided then we change it!
+		if (imageUrl !== 'undefined') {
+			post.imageUrl = imageUrl
+		}
+
+		const updatedPost = await post.save()
+
+		return {
+			...updatedPost._doc,
+			_id: updatedPost._id,
+			createdAt: updatedPost.createdAt.toISOString(),
+			updatedAt: updatedPost.updatedAt.toISOString(),
 		}
 	},
 }
