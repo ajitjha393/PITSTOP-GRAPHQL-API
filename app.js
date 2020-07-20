@@ -66,6 +66,12 @@ app.use((req, res, next) => {
 app.use(auth)
 
 app.put('/add-image', (req, res, next) => {
+	if (!req.isAuth) {
+		const err = new Error('User not Authenticated!')
+		err.statusCode = 401
+		throw err
+	}
+
 	// If no file is selected
 	if (!req.file) {
 		return res.status(200).json({
